@@ -1,7 +1,7 @@
 import Input from '../Input';
 import styled from 'styled-components';
-import { useState } from 'react';
-import { Livros } from './dadosPesquisa';
+import { useEffect, useState } from 'react';
+import { getLivros } from '../../servicos/livros';
 
 const PesquisaContainer = styled.section`
         background-image: linear-gradient(90deg, #002F52 35%, #326589 165%);
@@ -11,14 +11,12 @@ const PesquisaContainer = styled.section`
         height: 270px;
         width: 100%;
 `
-
 const Titulo = styled.h2`
         color: #FFF;
         font-size: 36px;
         text-align: center;
         width: 100%;
 `
-
 const Subtitulo = styled.h3`
         font-size: 16px;
         font-weight: 500;
@@ -43,6 +41,17 @@ const Resultado = styled.div`
 
 function Pesquisa() {
     const [livrosPesquisados, setLivrosPesquisados] = useState([]);
+    const [livros, setLivros] = useState([]);
+
+    useEffect(() => {
+        fetchLivros();
+    }, [])
+
+    async function fetchLivros() {
+        const livrosAPI = await getLivros();
+        setLivros(livrosAPI);
+    }
+
     return (
         <PesquisaContainer>
             <Titulo>Já sabe por onde começar?</Titulo>
@@ -51,15 +60,15 @@ function Pesquisa() {
                 placeholder="Escreva sua próxima leitura."
                 onBlur={evento => {
                     const textoDigitado = evento.target.value
-                    const resultadoPesquisa = Livros.filter(livro => livro.nome.includes(textoDigitado))
+                    const resultadoPesquisa = livros.filter(livro => livro.nome.includes(textoDigitado))
                     setLivrosPesquisados(resultadoPesquisa)
                 }}
             />
             <p>{livrosPesquisados.map(livro => (
                 <Resultado>
-                <p>{livro.nome}</p>
-                <img src={livro.src} alt='capa do livro'/>
-            </Resultado>
+                    <p>{livro.nome}</p>
+                    <img src={livro.src} alt='capa do livro' />
+                </Resultado>
             ))}</p>
         </PesquisaContainer>
     )
